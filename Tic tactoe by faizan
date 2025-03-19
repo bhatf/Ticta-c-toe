@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe - 2 Player Mode</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            margin: 0;
+            color: #fff;
+            flex-direction: column;
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(3, 120px);
+            grid-template-rows: repeat(3, 120px);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 120px;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5em;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            background: #fff;
+            color: #333;
+        }
+        .cell:hover {
+            background: #f1f1f1;
+            transform: scale(1.1);
+        }
+        .cell.X {
+            color: #ff4757; /* Red for X */
+        }
+        .cell.O {
+            color: #1e90ff; /* Blue for O */
+        }
+        .status {
+            margin-top: 20px;
+            font-size: 1.8em;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #fff;
+            color: #333;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            z-index: 1000;
+        }
+        .popup p {
+            font-size: 2em;
+            margin: 0 0 20px;
+        }
+        .popup button {
+            padding: 10px 25px;
+            font-size: 1.2em;
+            background: #2575fc;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .popup button:hover {
+            background: #6a11cb;
+        }
+        .btn {
+            margin-top: 20px;
+            padding: 12px 25px;
+            font-size: 1.2em;
+            background: #ff4757;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #e84118;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Tic Tac Toe - 2 Player Mode</h1>
+
+<div class="board" id="board">
+    <div class="cell" data-index="0"></div>
+    <div class="cell" data-index="1"></div>
+    <div class="cell" data-index="2"></div>
+    <div class="cell" data-index="3"></div>
+    <div class="cell" data-index="4"></div>
+    <div class="cell" data-index="5"></div>
+    <div class="cell" data-index="6"></div>
+    <div class="cell" data-index="7"></div>
+    <div class="cell" data-index="8"></div>
+</div>
+
+<div class="status" id="status">Player X's turn</div>
+
+<button class="btn" onclick="resetGame()">Restart Game</button>
+
+<div class="popup" id="popup">
+    <p id="popup-message"></p>
+    <button onclick="resetGame()">Play Again</button>
+</div>
+
+<script>
+    const board = document.getElementById('board');
+    const status = document.getElementById('status');
+    const popup = document.getElementById('popup');
+    const popupMessage = document.getElementById('popup-message');
+
+    let currentPlayer = 'X';
+    let gameState = ['', '', '', '', '', '', '', '', ''];
+    let gameActive = true;
+
+    const winningConditions = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+
+    function handleCellClick(event) {
+        const cell = event.target;
+        const index = parseInt(cell.getAttribute('data-index'));
+
+        if (gameState[index] !== '' || !gameActive) return;
+
+        gameState[index] = currentPlayer;
+        cell.textContent = currentPlayer;
+        cell.classList.add(currentPlayer);
+
+        checkForWinner();
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        status.textContent = `Player ${currentPlayer}'s turn`;
+    }
+
+    function checkForWinner() {
+        let roundWon = false;
+
+        for (let condition of winningConditions) {
+            const [a, b, c] = condition;
+            if (gameState[a] && gameState[a] === gameState[b] && gameState[a] === gameState[c]) {
+                roundWon = true;
+                break;
+            }
+        }
+
+        if (roundWon) {
+            gameActive = false;
+            popupMessage.textContent = `Player ${currentPlayer} wins! 🎉`;
+            popup.style.display = 'block';
+            return;
+        }
+
+        if (!gameState.includes('')) {
+            gameActive = false;
+            popupMessage.textContent = `It's a Draw! 🤝`;
+            popup.style.display = 'block';
+        }
+    }
+
+    function resetGame() {
+        gameState = ['', '', '', '', '', '', '', '', ''];
+        gameActive = true;
+        currentPlayer = 'X';
+        status.textContent = `Player ${currentPlayer}'s turn`;
+        popup.style.display = 'none';
+
+        document.querySelectorAll('.cell').forEach(cell => {
+            cell.textContent = '';
+            cell.classList.remove('X', 'O');
+        });
+    }
+
+    document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick));
+</script>
+
+</body>
+</html>
